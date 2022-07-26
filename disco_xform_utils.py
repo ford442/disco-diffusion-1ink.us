@@ -36,17 +36,13 @@ def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_m
            # print("if image_pil_area < MAX_ADABINS_AREA: else:")
             depth_input = img_pil
         try:
-          #  print("try:")
             _, adabins_depth = infer_helper.predict_pil(depth_input)
             if image_pil_area != MAX_ADABINS_AREA:
-          #      print("if image_pil_area != MAX_ADABINS_AREA:")
-                adabins_depth = torchvision.transforms.functional.resize(torch.from_numpy(adabins_depth), image_tensor.shape[-2:], interpolation=torchvision.transforms.functional.InterpolationMode.LANCZOS).squeeze().to(device)
+                adabins_depth = torchvision.transforms.functional.resize(torch.from_numpy(adabins_depth), image_tensor.shape[-2:], interpolation=torchvision.transforms.functional.InterpolationMode.BICUBIC).squeeze().to(device)
             else:
-          #      print("if image_pil_area != MAX_ADABINS_AREA: else:")
                 adabins_depth = torch.from_numpy(adabins_depth).squeeze().to(device)
             adabins_depth_np = adabins_depth.cpu().numpy()
         except:
-            #print("except:")
             pass
     # torch.cuda.empty_cache()
     img_midas = midas_utils.read_image(img_filepath)
