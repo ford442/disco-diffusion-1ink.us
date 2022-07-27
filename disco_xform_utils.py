@@ -1,6 +1,6 @@
 import numpy as np
 import numba
-from numba import vectorize
+from numba import jit
 import torch,torchvision
 import py3d_tools as p3d
 import midas_utils
@@ -15,7 +15,7 @@ except:
 MAX_ADABINS_AREA=500000
 MIN_ADABINS_AREA=448*448
 @torch.no_grad()
-@vectorize
+@jit(forceobj=True,fastmath=True,cache=True,nogil=True)
 def transform_image_3d(img_filepath,rot_mat=torch.eye(3).unsqueeze(0),translate=(0.,0.,0.00),near=2000,far=20000,fov_deg=114):
     midas_transform=T.Compose(
         [
