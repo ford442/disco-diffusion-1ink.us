@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit
+from numba import jit
 
 import torch,torchvision
 import py3d_tools as p3d
