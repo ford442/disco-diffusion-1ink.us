@@ -119,7 +119,7 @@ def transform_image_3d(img_filepath, rot_mat=torch.eye(3).unsqueeze(0), translat
     img_pil = torchvision.transforms.ToPILImage()(new_image.squeeze().clamp(0,1.))
     #torch.cuda.empty_cache()
     return img_pil
-def get_spherical_projection(H, W, center, magnitude,'cuda'):  
+def get_spherical_projection(H, W, center, magnitude,device='cuda'):  
     xx, yy = torch.linspace(-1, 1, W,dtype=torch.float32,device='cuda'), torch.linspace(-1, 1, H,dtype=torch.float32,device='cuda')  
     gridy, gridx  = torch.meshgrid(yy, xx)
     grid = torch.stack([gridx, gridy], dim=-1)  
