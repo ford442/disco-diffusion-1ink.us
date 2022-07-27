@@ -17,9 +17,6 @@ device=torch.device("cuda:0")
 
 @torch.no_grad()
 def transform_image_3d(img_filepath,midas_model,midas_transform,rot_mat=torch.eye(3).unsqueeze(0),translate=(0.,0.,0.00),near=2000,far=20000,fov_deg=114,padding_mode='border',sampling_mode="bicubic", midas_weight=1.0):
-    padding_mode='border'
-    sampling_mode='bicubic'
-    midas_weight=0.3
     spherical=False
     img_pil=Image.open(open(img_filepath,'rb')).convert('RGB')
     w,h=img_pil.size
