@@ -16,11 +16,10 @@ except:
 MAX_ADABINS_AREA=500000
 MIN_ADABINS_AREA=448*448
 
-device=torch.device("cuda:0")
-
 @torch.no_grad()
 @nb.jit(forceobj=True)
-def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.00), near=5.0, far=10.0, fov_deg=60, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+#def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.00), near=5.0, far=10.0, fov_deg=60, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat, translate, near, far, fov_deg, padding_mode, sampling_mode, midas_weight):
     img_pil=Image.open(open(img_filepath,'rb')).convert('RGB')
     w,h=img_pil.size
     image_tensor=torchvision.transforms.functional.to_tensor(img_pil).to(device)
@@ -99,11 +98,11 @@ def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_m
     img_pil=torchvision.transforms.ToPILImage()(new_image.squeeze().clamp(0,1.))
     #torch.cuda.empty_cache()
     return img_pil
-def get_spherical_projection(H,W,center,magnitude,device=device):  
-    xx,yy=torch.linspace(-1,1,W,dtype=torch.float32,device=device),torch.linspace(-1,1,H,dtype=torch.float32,device=device)  
-    gridy,gridx =torch.meshgrid(yy,xx)
-    grid=torch.stack([gridx,gridy],dim=-1)  
-    d=center-grid
-    d_sum=torch.sqrt((d**2).sum(axis=-1))
-    grid += d*d_sum.unsqueeze(-1)*magnitude 
-    return grid.unsqueeze(0)
+#def get_spherical_projection(H,W,center,magnitude,device=device):  
+ #   xx,yy=torch.linspace(-1,1,W,dtype=torch.float32,device=device),torch.linspace(-1,1,H,dtype=torch.float32,device=device)  
+  #  gridy,gridx =torch.meshgrid(yy,xx)
+  #  grid=torch.stack([gridx,gridy],dim=-1)  
+   # d=center-grid
+  #  d_sum=torch.sqrt((d**2).sum(axis=-1))
+  #  grid += d*d_sum.unsqueeze(-1)*magnitude 
+ #   return grid.unsqueeze(0)
