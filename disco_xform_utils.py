@@ -1,3 +1,4 @@
+from numba import jit
 import numpy as np
 import torch,torchvision
 import py3d_tools as p3d
