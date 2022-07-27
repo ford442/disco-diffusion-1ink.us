@@ -16,7 +16,27 @@ MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 @torch.no_grad()
 @vectorize
-def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.00), near=2000, far=20000, fov_deg=114):
+def transform_image_3d(img_filepath, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.00), near=2000, far=20000, fov_deg=114):
+    midas_transform=T.Compose(
+        [
+            Resize(
+                net_w,
+                net_h,
+                resize_target=None,
+                keep_aspect_ratio=True,
+                ensure_multiple_of=32,
+                resize_method=resize_mode,
+                image_interpolation_method=cv2.INTER_LANCZOS4,
+            ),
+            normalization,
+            PrepareForNet(),
+        ]
+    )
+    midas_model=DPTDepthModel(
+            path=midas_model_path,
+            backbone="vitl16_384",
+            non_negative=True,
+        )
     padding_mode='border'
     sampling_mode='bicubic'
     midas_weight = 0.3
