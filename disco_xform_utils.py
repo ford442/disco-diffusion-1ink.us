@@ -13,7 +13,7 @@ except:
 MAX_ADABINS_AREA=500000
 MIN_ADABINS_AREA=448*448
 
-device=torch.device("cuda")
+device=torch.device("cuda:0")
 
 @torch.no_grad()
 def transform_image_3d(img_filepath,midas_model,midas_transform,rot_mat=torch.eye(3).unsqueeze(0),translate=(0.,0.,0.00),near=2000,far=20000,fov_deg=114):
@@ -23,7 +23,7 @@ def transform_image_3d(img_filepath,midas_model,midas_transform,rot_mat=torch.ey
     spherical=False
     img_pil=Image.open(open(img_filepath,'rb')).convert('RGB')
     w,h=img_pil.size
-    image_tensor=torchvision.transforms.functional.to_tensor(img_pil).to('cuda')
+    image_tensor=torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins=midas_weight < 1.0
     if use_adabins:
         # AdaBins
@@ -43,9 +43,9 @@ def transform_image_3d(img_filepath,midas_model,midas_transform,rot_mat=torch.ey
         try:
             _,adabins_depth=infer_helper.predict_pil(depth_input)
             if image_pil_area != MAX_ADABINS_AREA:
-                adabins_depth=torchvision.transforms.functional.resize(torch.from_numpy(adabins_depth),image_tensor.shape[-2:],interpolation=torchvision.transforms.functional.InterpolationMode.BICUBIC).squeeze().to('cuda')
+                adabins_depth=torchvision.transforms.functional.resize(torch.from_numpy(adabins_depth),image_tensor.shape[-2:],interpolation=torchvision.transforms.functional.InterpolationMode.BICUBIC).squeeze().to(device)
             else:
-                adabins_depth=torch.from_numpy(adabins_depth).squeeze().to('cuda')
+                adabins_depth=torch.from_numpy(adabins_depth).squeeze().to(device)
             adabins_depth_np=adabins_depth.cpu().numpy()
         except:
             pass
@@ -53,7 +53,7 @@ def transform_image_3d(img_filepath,midas_model,midas_transform,rot_mat=torch.ey
     img_midas=midas_utils.read_image(img_filepath)
     img_midas_input=midas_transform({"image": img_midas})["image"]
     midas_optimize=True
-    sample=torch.from_numpy(img_midas_input).float().to('cuda').unsqueeze(0)
+    sample=torch.from_numpy(img_midas_input).float().to(device).unsqueeze(0)
     if midas_optimize==True and device == torch.device("cuda"):
         sample=sample.to(memory_format=torch.channels_last)  
         sample=sample.half()
@@ -77,7 +77,7 @@ def transform_image_3d(img_filepath,midas_model,midas_transform,rot_mat=torch.ey
     #depth_map=adabins_depth_np
     #print("Just using Midas.")
     depth_map=np.expand_dims(depth_map,axis=0)
-    depth_tensor=torch.from_numpy(depth_map).squeeze().to('cuda')
+    depth_tensor=torch.from_numpy(depth_map).squeeze().to(device)
     pixel_aspect=1.0
     persp_cam_old=p3d.FoVPerspectiveCameras(near,far,pixel_aspect,fov=fov_deg,degrees=True,device=device)
     persp_cam_new=p3d.FoVPerspectiveCameras(near,far,pixel_aspect,fov=fov_deg,degrees=True,R=rot_mat,T=torch.tensor([translate]),device=device)
