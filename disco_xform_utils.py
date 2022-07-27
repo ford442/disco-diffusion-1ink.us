@@ -13,9 +13,10 @@ except:
 MAX_ADABINS_AREA=500000
 MIN_ADABINS_AREA=448*448
 @torch.no_grad()
+device=torch.device("cuda")
+
 def transform_image_3d(img_filepath,midas_model,midas_transform,rot_mat=torch.eye(3).unsqueeze(0),translate=(0.,0.,0.00),near=2000,far=20000,fov_deg=114):
     padding_mode='border'
-    device=torch.device("cuda")
     sampling_mode='bicubic'
     midas_weight=0.3
     spherical=False
