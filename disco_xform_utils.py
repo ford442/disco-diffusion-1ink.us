@@ -15,7 +15,7 @@ MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 
 @torch.no_grad()
-def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,-0.04), near=2000, far=20000, fov_deg=60, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,-0.04), near=2000, far=20000, fov_deg=60, padding_mode='border', sampling_mode='lanczos', midas_weight = 0.3,spherical=False):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
@@ -36,7 +36,7 @@ def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_m
             depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.LANCZOS) # LANCZOS is supposed to be good for downsampling.
         elif image_pil_area < MIN_ADABINS_AREA:
             scale = math.sqrt(MIN_ADABINS_AREA) / math.sqrt(image_pil_area)
-            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.BICUBIC)
+            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
         else:
             depth_input = img_pil
         try:
@@ -66,7 +66,7 @@ def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_m
     prediction_torch = torch.nn.functional.interpolate(
             prediction_torch.unsqueeze(1),
             size=img_midas.shape[:2],
-            mode="bicubic",
+            mode="lanczos",
             align_corners=False,
         ).squeeze()
     prediction_np = prediction_torch.clone().cpu().numpy()
