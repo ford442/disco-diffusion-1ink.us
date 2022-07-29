@@ -14,9 +14,11 @@ except:
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 
+device=torch.device('cuda')
+
 @torch.no_grad()
-@jit(forceobj=True,fastmath=True,cache=True,nogil=True)
-def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,-0.04), near=2000, far=20000, fov_deg=60, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+#@jit(forceobj=True,fastmath=True,cache=True,nogil=True)
+def transform_image_3d(img_filepath, midas_model, midas_transform, rot_mat, translate, near, far, fov_deg, padding_mode, sampling_mode, midas_weight,spherical):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
