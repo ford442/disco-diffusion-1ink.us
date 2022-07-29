@@ -14,7 +14,7 @@ except:
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 
-device=torch.device('cuda')
+device=torch.device('cuda:0')
 
 @torch.no_grad()
 #@jit(forceobj=True,fastmath=True,cache=True,nogil=True)
