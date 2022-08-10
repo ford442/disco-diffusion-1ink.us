@@ -34,7 +34,7 @@ def getimg(img_filepath):
     return img_pi
 
 @torch.no_grad()
-@jit(forceobj=True,fastmath=True,cache=True)
+@vectorize(nopython=True,cache=True)
 def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
     img_pil=getimg(img_filepath)
     w, h = img_pil.size
