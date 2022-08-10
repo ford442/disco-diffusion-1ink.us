@@ -34,6 +34,9 @@ midas_model=DPTDepthModel(
             backbone="vitl16_384",
             non_negative=True,
 )
+net_w,net_h=384,384
+resize_mode="minimal"
+normalization=NormalizeImage(mean=[0.5,0.5,0.5],std=[0.5,0.5,0.5])
 midas_transform=T.Compose(
         [
             Resize(
