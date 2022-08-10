@@ -22,7 +22,7 @@ def getimg(img_filepath):
     return img_pi
 @torch.no_grad()
 @vectorize(nopython=True,cache=True)
-def transform_image_3d(img_filepath, midas_mode, midas_trans, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+def transform_image_3d(img_filepath, midas_mode, midas_trans, devi, rot_ma, translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
     midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
             backbone="vitl16_384",
@@ -94,7 +94,7 @@ def transform_image_3d(img_filepath, midas_mode, midas_trans, devi, rot_mat=torc
     depth_tensor = torch.from_numpy(depth_map).squeeze().to(device)
     pixel_aspect = 1.0 # really.. the aspect of an individual pixel! (so usually 1.0)
     persp_cam_old = p3d.FoVPerspectiveCameras(near, far, pixel_aspect, fov=fov_deg, degrees=True, device=device)
-    persp_cam_new = p3d.FoVPerspectiveCameras(near, far, pixel_aspect, fov=fov_deg, degrees=True, R=rot_mat, T=torch.tensor([translate]), device=device)
+    persp_cam_new = p3d.FoVPerspectiveCameras(near, far, pixel_aspect, fov=fov_deg, degrees=True, device=device)
     y,x = torch.meshgrid(torch.linspace(-1.,1.,h,dtype=torch.float32,device=device),torch.linspace(-1.,1.,w,dtype=torch.float32,device=device))
     z = torch.as_tensor(depth_tensor, dtype=torch.float32, device=device)
     xyz_old_world = torch.stack((x.flatten(), y.flatten(), z.flatten()), dim=1)
