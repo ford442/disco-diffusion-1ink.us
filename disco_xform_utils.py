@@ -1,3 +1,4 @@
+from numba import njit
 import torch, torchvision
 import py3d_tools as p3d
 import midas_utils
