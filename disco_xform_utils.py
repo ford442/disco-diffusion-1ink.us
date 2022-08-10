@@ -20,9 +20,9 @@ from infer import InferenceHelper
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 device=torch.device('cuda:0')
-def getimg(img_filepath):
-    img_pi = Image.open(open(img_filepath, 'rb')).convert('RGB')
-    return img_pi
+#def getimg(img_filepath):
+  #  img_pi = Image.open(open(img_filepath, 'rb')).convert('RGB')
+  #  return img_pi
 translate=(0.,0.,0.0)
 near=0.2
 far=16.0
@@ -55,8 +55,9 @@ midas_transform=T.Compose(
 @torch.no_grad()
 @jit()
 def transform_image_3d(img_filepath):
+    img_pil=cv2.imread(img_filepath)
 
-    img_pil=getimg(img_filepath)
+    #img_pil=getimg(img_filepath)
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins = midas_weight < 1.0
