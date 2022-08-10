@@ -1,4 +1,5 @@
 import numpy as np
+from midas.dpt_depth import DPTDepthModel
 
 import torch, torchvision
 import py3d_tools as p3d
