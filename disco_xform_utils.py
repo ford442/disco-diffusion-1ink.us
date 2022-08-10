@@ -25,16 +25,12 @@ fov_deg=114
 padding_mode='border'
 sampling_mode='bicubic'
 midas_weight = 0.3
-
-@torch.no_grad()
-@jit()
-def transform_image_3d(img_filepath):
     midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
             backbone="vitl16_384",
             non_negative=True,
         )
-    midas_transform=T.Compose(
+midas_transform=T.Compose(
         [
             Resize(
                 net_w,
@@ -47,7 +43,11 @@ def transform_image_3d(img_filepath):
             ),
             normalization,
             PrepareForNet(),
-        ])
+])
+@torch.no_grad()
+@jit()
+def transform_image_3d(img_filepath):
+
     img_pil=getimg(img_filepath)
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
