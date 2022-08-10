@@ -56,7 +56,7 @@ midas_transform=T.Compose(
 def transform_image_3d(img_filepath,imgsize):
   
     img_pil=cv2.imread(img_filepath)
-    siiz=imgsize,imgsize
+    siiz=imgsize
     #img_pil=getimg(img_filepath)
     w,h = siiz
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
