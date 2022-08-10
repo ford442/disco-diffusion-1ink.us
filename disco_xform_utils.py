@@ -69,7 +69,7 @@ def transform_image_3d(img_filepath,imgsize):
             depth_input = img_pil.resize((int(imgsize*scale), int(imgsize*scale)), Image.BICUBIC) # LANCZOS is supposed to be good for downsampling.
         elif image_pil_area < MIN_ADABINS_AREA:
             scale = math.sqrt(MIN_ADABINS_AREA) / math.sqrt(image_pil_area)
-            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.BICUBIC)
+            depth_input = img_pil.resize((int(imgsize*scale), int(imgsize*scale)), Image.BICUBIC)
         else:
             depth_input = img_pil
         try:
