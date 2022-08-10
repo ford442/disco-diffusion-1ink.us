@@ -1,5 +1,7 @@
+import numba as nb
 from numba import vectorize
 from numba import njit
+from numba import jit
 import numpy as np
 import midas
 from midas import dpt_depth
@@ -25,19 +27,20 @@ midas_model=DPTDepthModel(
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 device=torch.device('cuda:0')
-@torch.no_grad()
-@vectorize()
-def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+
+
+def getimg():
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
+
+
+@torch.no_grad()
+@jit(forceobj=True,fastmath=True,cache=True)
+def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+    getimg()
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins = midas_weight < 1.0
     if use_adabins:
-        # AdaBins
-        """
-        predictions using nyu dataset
-        """
-        print("Running AdaBins depth estimation implementation...")
         infer_helper = InferenceHelper(dataset='nyu', device=device)
         image_pil_area = w*h
         if image_pil_area > MAX_ADABINS_AREA:
@@ -58,12 +61,9 @@ def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=
         except:
             pass
     #torch.cuda.empty_cache()
-    # MiDaS
     img_midas = midas_utils.read_image(img_filepath)
     img_midas_input = midas_transform({"image": img_midas})["image"]
     midas_optimize = True
-    # MiDaS depth estimation implementation
-    print("Running MiDaS depth estimation implementation...")
     sample = torch.from_numpy(img_midas_input).float().to(device).unsqueeze(0)
     if midas_optimize==True and device == torch.device("cuda"):
         sample = sample.to(memory_format=torch.channels_last)  
@@ -76,9 +76,7 @@ def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=
             align_corners=False,
         ).squeeze()
     prediction_np = prediction_torch.clone().cpu().numpy()
-    #print("Finished depth estimation.")
-    torch.cuda.empty_cache()
-    # MiDaS makes the near values greater, and the far values lesser. Let's reverse that and try to align with AdaBins a bit better.
+    #torch.cuda.empty_cache()
     prediction_np = np.subtract(50.0, prediction_np)
     prediction_np = prediction_np / 19.0
     if use_adabins:
@@ -91,18 +89,13 @@ def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=
     pixel_aspect = 1.0 # really.. the aspect of an individual pixel! (so usually 1.0)
     persp_cam_old = p3d.FoVPerspectiveCameras(near, far, pixel_aspect, fov=fov_deg, degrees=True, device=device)
     persp_cam_new = p3d.FoVPerspectiveCameras(near, far, pixel_aspect, fov=fov_deg, degrees=True, R=rot_mat, T=torch.tensor([translate]), device=device)
-    # range of [-1,1] is important to torch grid_sample's padding handling
     y,x = torch.meshgrid(torch.linspace(-1.,1.,h,dtype=torch.float32,device=device),torch.linspace(-1.,1.,w,dtype=torch.float32,device=device))
     z = torch.as_tensor(depth_tensor, dtype=torch.float32, device=device)
     xyz_old_world = torch.stack((x.flatten(), y.flatten(), z.flatten()), dim=1)
-    # Transform the points using pytorch3d. With current functionality, this is overkill and prevents it from working on Windows.
-    # If you want it to run on Windows (without pytorch3d), then the transforms (and/or perspective if that's separate) can be done pretty easily without it.
     xyz_old_cam_xy = persp_cam_old.get_full_projection_transform().transform_points(xyz_old_world)[:,0:2]
     xyz_new_cam_xy = persp_cam_new.get_full_projection_transform().transform_points(xyz_old_world)[:,0:2]
     offset_xy = xyz_new_cam_xy - xyz_old_cam_xy
-    # affine_grid theta param expects a batch of 2D mats. Each is 2x3 to do rotation+translation.
     identity_2d_batch = torch.tensor([[1.,0.,0.],[0.,1.,0.]], device=device).unsqueeze(0)
-    # coords_2d will have shape (N,H,W,2).. which is also what grid_sample needs.
     coords_2d = torch.nn.functional.affine_grid(identity_2d_batch, [1,1,h,w], align_corners=False)
     offset_coords_2d = coords_2d - torch.reshape(offset_xy, (h,w,2)).unsqueeze(0)
     if spherical:
