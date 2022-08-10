@@ -6,6 +6,8 @@ from midas.midas_net_custom import MidasNet_small
 from midas.transforms import Resize,NormalizeImage,PrepareForNet
 
 import torch, torchvision
+import torchvision.transforms as T
+
 import py3d_tools as p3d
 import midas_utils
 from PIL import Image
