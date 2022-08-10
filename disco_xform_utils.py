@@ -53,7 +53,7 @@ midas_transform=T.Compose(
             PrepareForNet(),
 ])
 @torch.no_grad()
-@jit(forceobj=True,fastmath=True,cache=True)
+#@jit(forceobj=True,fastmath=True,cache=True)
 def transform_image_3d(img_filepath):
     img_pil=cv2.imread(img_filepath)
 
