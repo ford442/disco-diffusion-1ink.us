@@ -1,4 +1,3 @@
-import numba as nb
 from numba import vectorize
 from numba import njit
 from numba import jit
@@ -13,29 +12,36 @@ import midas_utils
 from PIL import Image
 import sys, math
 
-try:
-    from infer import InferenceHelper
-except:
-    print("disco_xform_utils.py failed to import InferenceHelper. Please ensure that AdaBins directory is in the path (i.e. via sys.path.append('./AdaBins') or other means).")
-    sys.exit()
+from infer import InferenceHelper
     
-midas_model=DPTDepthModel(
+MAX_ADABINS_AREA = 500000
+MIN_ADABINS_AREA = 448*448
+device=torch.device('cuda:0')
+def getimg(img_filepath):
+    img_pi = Image.open(open(img_filepath, 'rb')).convert('RGB')
+    return img_pi
+@torch.no_grad()
+@vectorize(nopython=True,cache=True)
+def transform_image_3d(img_filepath, midas_mode, midas_trans, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+    midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
             backbone="vitl16_384",
             non_negative=True,
         )
-MAX_ADABINS_AREA = 500000
-MIN_ADABINS_AREA = 448*448
-device=torch.device('cuda:0')
-
-
-def getimg(img_filepath):
-    img_pi = Image.open(open(img_filepath, 'rb')).convert('RGB')
-    return img_pi
-
-@torch.no_grad()
-@vectorize(nopython=True,cache=True)
-def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+    midas_transform=T.Compose(
+        [
+            Resize(
+                net_w,
+                net_h,
+                resize_target=None,
+                keep_aspect_ratio=True,
+                ensure_multiple_of=32,
+                resize_method=resize_mode,
+                image_interpolation_method=cv2.INTER_LANCZOS4,
+            ),
+            normalization,
+            PrepareForNet(),
+        ])
     img_pil=getimg(img_filepath)
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
