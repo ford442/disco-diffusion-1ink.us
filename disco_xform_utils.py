@@ -1,5 +1,6 @@
 from numba import jit
 import numpy as np
+import midas
 from midas.dpt_depth import DPTDepthModel
 from midas.midas_net import MidasNet
 from midas.midas_net_custom import MidasNet_small
