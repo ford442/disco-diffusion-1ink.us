@@ -1,5 +1,3 @@
-from numba import jit
-import numpy as np
 import midas
 from midas.dpt_depth import DPTDepthModel
 from midas.midas_net import MidasNet
@@ -14,6 +12,8 @@ import py3d_tools as p3d
 import midas_utils
 from PIL import Image
 import sys, math
+import numpy as np
+from numba import jit
 
 from infer import InferenceHelper
 MAX_ADABINS_AREA = 500000
