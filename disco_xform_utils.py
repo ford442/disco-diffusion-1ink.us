@@ -1,10 +1,9 @@
 from numba import jit
 import numpy as np
-import midas
-from midas import dpt_depth
 from midas.dpt_depth import DPTDepthModel
-import torchvision.transforms as T
-from resize_right import resize
+from midas.midas_net import MidasNet
+from midas.midas_net_custom import MidasNet_small
+from midas.transforms import Resize,NormalizeImage,PrepareForNet
 
 import torch, torchvision
 import py3d_tools as p3d
