@@ -22,7 +22,8 @@ def getimg(img_filepath):
     return img_pi
 @torch.no_grad()
 @vectorize(nopython=True,cache=True)
-def transform_image_3d(img_filepath, midas_mode, midas_trans, devi, rot_ma, translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+def transform_image_3d(img_filepath):
+    translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3
     midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
             backbone="vitl16_384",
@@ -104,20 +105,7 @@ def transform_image_3d(img_filepath, midas_mode, midas_trans, devi, rot_ma, tran
     identity_2d_batch = torch.tensor([[1.,0.,0.],[0.,1.,0.]], device=device).unsqueeze(0)
     coords_2d = torch.nn.functional.affine_grid(identity_2d_batch, [1,1,h,w], align_corners=False)
     offset_coords_2d = coords_2d - torch.reshape(offset_xy, (h,w,2)).unsqueeze(0)
-    if spherical:
-        spherical_grid = get_spherical_projection(h, w, torch.tensor([0,0], device=device), -0.4,device=device)#align_corners=False
-        stage_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=True)
-        new_image = torch.nn.functional.grid_sample(stage_image, spherical_grid,align_corners=True) #, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
-    else:
-        new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
+    new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
     img_pil = torchvision.transforms.ToPILImage()(new_image.squeeze().clamp(0,1.))
     #torch.cuda.empty_cache()
     return img_pil
-def get_spherical_projection(H, W, center, magnitude,device):  
-    xx, yy = torch.linspace(-1, 1, W,dtype=torch.float32,device=device), torch.linspace(-1, 1, H,dtype=torch.float32,device=device)  
-    gridy, gridx  = torch.meshgrid(yy, xx)
-    grid = torch.stack([gridx, gridy], dim=-1)  
-    d = center - grid
-    d_sum = torch.sqrt((d**2).sum(axis=-1))
-    grid += d * d_sum.unsqueeze(-1) * magnitude 
-    return grid.unsqueeze(0)
