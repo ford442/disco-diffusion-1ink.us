@@ -25,11 +25,11 @@ fov_deg=114
 padding_mode='border'
 sampling_mode='bicubic'
 midas_weight = 0.3
-    midas_model=DPTDepthModel(
+midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
             backbone="vitl16_384",
             non_negative=True,
-        )
+)
 midas_transform=T.Compose(
         [
             Resize(
