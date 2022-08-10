@@ -4,6 +4,7 @@ import midas
 from midas import dpt_depth
 from midas.dpt_depth import DPTDepthModel
 import torchvision.transforms as T
+from resize_right import resize
 
 import torch, torchvision
 import py3d_tools as p3d
