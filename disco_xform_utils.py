@@ -30,13 +30,13 @@ device=torch.device('cuda:0')
 
 
 def getimg():
-    img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
-
+    img_pi = Image.open(open(img_filepath, 'rb')).convert('RGB')
+    return img_pi
 
 @torch.no_grad()
 @jit(forceobj=True,fastmath=True,cache=True)
 def transform_image_3d(img_filepath, midas_mode, midas_transform, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
-    getimg()
+    img_pil=getimg()
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins = midas_weight < 1.0
