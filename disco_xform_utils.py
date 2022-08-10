@@ -1,12 +1,12 @@
 import numpy as np
-import numba
-from numba import jit
+
 import torch, torchvision
 import py3d_tools as p3d
 import midas_utils
 from PIL import Image
 import sys, math
-
+import numba
+from numba import jit
 try:
     from infer import InferenceHelper
 except:
