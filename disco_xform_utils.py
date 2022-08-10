@@ -6,7 +6,7 @@ import midas_utils
 from PIL import Image
 import sys, math
 import numba
-from numba import jit
+from numba import njit
 try:
     from infer import InferenceHelper
 except:
@@ -17,7 +17,7 @@ MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 device=torch.device('cuda:0')
 @torch.no_grad()
-@jit(forceobj=True)
+@njit()
 def transform_image_3d(img_filepath, midas_model, midas_transform, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
