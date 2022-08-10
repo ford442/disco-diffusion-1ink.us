@@ -16,7 +16,7 @@ from PIL import Image
 import sys, math
 
 from infer import InferenceHelper
-    
+%store -r img_size
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 device=torch.device('cuda:0')
@@ -58,7 +58,8 @@ def transform_image_3d(img_filepath):
     img_pil=cv2.imread(img_filepath)
 
     #img_pil=getimg(img_filepath)
-    w, h = img_pil.size
+    w = img_size
+    h = img_size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins = midas_weight < 1.0
     if use_adabins:
