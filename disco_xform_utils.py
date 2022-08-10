@@ -20,10 +20,17 @@ device=torch.device('cuda:0')
 def getimg(img_filepath):
     img_pi = Image.open(open(img_filepath, 'rb')).convert('RGB')
     return img_pi
+translate=(0.,0.,0.0)
+near=0.2
+far=16.0
+fov_deg=114
+padding_mode='border'
+sampling_mode='bicubic'
+midas_weight = 0.3
+
 @torch.no_grad()
 @vectorize(nopython=True,cache=True)
 def transform_image_3d(img_filepath):
-    translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3
     midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
             backbone="vitl16_384",
