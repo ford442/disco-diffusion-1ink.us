@@ -1,6 +1,8 @@
 from numba import vectorize
 from numba import njit
 import numpy as np
+import midas
+from midas import dpt_depth
 from midas.dpt_depth import DPTDepthModel
 
 import torch, torchvision
@@ -16,7 +18,7 @@ except:
     sys.exit()
     
 midas_model=DPTDepthModel(
-            path=midas_model_path,
+            path='/content/midas/dpt_large-midas-2f21e586.pt',
             backbone="vitl16_384",
             non_negative=True,
         )
