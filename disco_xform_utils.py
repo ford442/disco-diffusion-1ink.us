@@ -3,6 +3,7 @@ import numpy as np
 import midas
 from midas import dpt_depth
 from midas.dpt_depth import DPTDepthModel
+import torchvision.transforms as T
 
 import torch, torchvision
 import py3d_tools as p3d
