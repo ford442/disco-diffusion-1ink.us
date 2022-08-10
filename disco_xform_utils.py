@@ -33,10 +33,10 @@ def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_m
         image_pil_area = w*h
         if image_pil_area > MAX_ADABINS_AREA:
             scale = math.sqrt(MAX_ADABINS_AREA) / math.sqrt(image_pil_area)
-            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.BICUBIC) # LANCZOS is supposed to be good for downsampling.
+            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.LANCZOS) # LANCZOS is supposed to be good for downsampling.
         elif image_pil_area < MIN_ADABINS_AREA:
             scale = math.sqrt(MIN_ADABINS_AREA) / math.sqrt(image_pil_area)
-            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.BICUBIC)
+            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
         else:
             depth_input = img_pil
         try:
