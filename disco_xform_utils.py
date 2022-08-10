@@ -54,12 +54,9 @@ midas_transform=T.Compose(
 @torch.no_grad()
 #@jit(forceobj=True,fastmath=True,cache=True)
 def transform_image_3d(img_filepath,imgsize):
-  
-    w = imgsize
-    h = imgsize
-    imgsize=tuple(imgsize,imgsize)
+    img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
+    w, h = img_pil.size
     img_pil=cv2.imread(img_filepath)
-    #img_pil=getimg(img_filepath)
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins = midas_weight < 1.0
     if use_adabins:
@@ -67,10 +64,10 @@ def transform_image_3d(img_filepath,imgsize):
         image_pil_area = w*h
         if image_pil_area > MAX_ADABINS_AREA:
             scale = math.sqrt(MAX_ADABINS_AREA) / math.sqrt(image_pil_area)
-            depth_input = img_pil.resize((int(imgsize*scale), int(imgsize*scale)), Image.BICUBIC) # LANCZOS is supposed to be good for downsampling.
+            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.BICUBIC) # LANCZOS is supposed to be good for downsampling.
         elif image_pil_area < MIN_ADABINS_AREA:
             scale = math.sqrt(MIN_ADABINS_AREA) / math.sqrt(image_pil_area)
-            depth_input = img_pil.resize((int(imgsize*scale), int(imgsize*scale)), Image.BICUBIC)
+            depth_input = img_pil.resize((int(w*scale), int(h*scale)), Image.BICUBIC)
         else:
             depth_input = img_pil
         try:
