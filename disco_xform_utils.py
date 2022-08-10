@@ -29,7 +29,7 @@ sampling_mode='bicubic'
 midas_weight = 0.3
 
 @torch.no_grad()
-@vectorize(nopython=True,cache=True)
+@vectorize(cache=True)
 def transform_image_3d(img_filepath):
     midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
