@@ -16,7 +16,6 @@ from PIL import Image
 import sys, math
 
 from infer import InferenceHelper
-%store -r img_size
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 device=torch.device('cuda:0')
