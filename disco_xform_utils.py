@@ -16,6 +16,7 @@ except:
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 device=torch.device('cuda:0')
+global mark_try_block
 @torch.no_grad()
 @jit(fastmath=True,forceobj=True,cache=True)
 def transform_image_3d(img_filepath, midas_model, midas_transform, devi, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,0.0), near=0.2, far=16.0, fov_deg=114, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
