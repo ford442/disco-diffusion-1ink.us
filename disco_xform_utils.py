@@ -57,8 +57,8 @@ def transform_image_3d(img_filepath,imgsize):
     img_pil=cv2.imread(img_filepath)
 
     #img_pil=getimg(img_filepath)
-    w = imgsize
-    h = imgsize
+    w = imgsize[1]
+    h = imgsize[1]
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins = midas_weight < 1.0
     if use_adabins:
