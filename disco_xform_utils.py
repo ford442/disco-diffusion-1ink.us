@@ -1,5 +1,3 @@
-from numba import vectorize
-from numba import njit
 from numba import jit
 import numpy as np
 import midas
@@ -29,7 +27,7 @@ sampling_mode='bicubic'
 midas_weight = 0.3
 
 @torch.no_grad()
-@vectorize(cache=True)
+@jit()
 def transform_image_3d(img_filepath):
     midas_model=DPTDepthModel(
             path='/content/midas/dpt_large-midas-2f21e586.pt',
