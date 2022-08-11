@@ -10,7 +10,7 @@ import numpy as np
 import sys, math
 import cv2
 import torchvision.transforms as T
-device=torch.device('cuda:0')
+device=torch.device('cpu')
 from numba import jit
 try:
     from infer import InferenceHelper
