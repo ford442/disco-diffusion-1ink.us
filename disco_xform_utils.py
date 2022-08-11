@@ -1,9 +1,16 @@
 import torch, torchvision
 import py3d_tools as p3d
 import midas_utils
+from midas.dpt_depth import DPTDepthModel
+from midas.midas_net import MidasNet
+from midas.midas_net_custom import MidasNet_small
+from midas.transforms import Resize,NormalizeImage,PrepareForNet
 from PIL import Image
 import numpy as np
 import sys, math
+import cv2
+import torchvision.transforms as T
+device=torch.device('cuda:0')
 
 try:
     from infer import InferenceHelper
@@ -11,11 +18,40 @@ except:
     print("disco_xform_utils.py failed to import InferenceHelper. Please ensure that AdaBins directory is in the path (i.e. via sys.path.append('./AdaBins') or other means).")
     sys.exit()
 
+translate=(0.,0.,0.0)
+near=0.2
+far=16.0
+fov_deg=114
+padding_mode='border'
+sampling_mode='bicubic'
+midas_weight = 0.3
+midas_model=DPTDepthModel(
+            path='/content/midas/dpt_large-midas-2f21e586.pt',
+            backbone="vitl16_384",
+            non_negative=True,
+)
+net_w,net_h=384,384
+resize_mode="minimal"
+normalization=NormalizeImage(mean=[0.5,0.5,0.5],std=[0.5,0.5,0.5])
+midas_transform=T.Compose(
+        [
+            Resize(
+                net_w,
+                net_h,
+                resize_target=None,
+                keep_aspect_ratio=True,
+                ensure_multiple_of=32,
+                resize_method=resize_mode,
+                image_interpolation_method=cv2.INTER_LANCZOS4,
+            ),
+            normalization,
+            PrepareForNet(),
+])
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 
 @torch.no_grad()
-def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,-0.04), near=2000, far=20000, fov_deg=60, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,spherical=False):
+def transform_image_3d(img_filepath,imgsize):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
