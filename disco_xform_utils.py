@@ -11,7 +11,7 @@ import sys, math
 import cv2
 import torchvision.transforms as T
 device=torch.device('cpu')
-from numba import njit
+from numba import jit
 try:
     from infer import InferenceHelper
 except:
@@ -51,7 +51,7 @@ MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 
 @torch.inference_mode()
-@njit()
+@jit(fastmath=True,forceobj=True,cache=True)
 def transform_image_3d(img_filepath,imgsize):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
