@@ -51,6 +51,7 @@ MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 
 @torch.inference_mode()
+@jit(forceobj=True,cache=True)
 def transform_image_3d(img_filepath,imgsize):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
