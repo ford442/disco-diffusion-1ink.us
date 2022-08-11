@@ -11,7 +11,7 @@ import sys, math
 import cv2
 import torchvision.transforms as T
 device=torch.device('cpu')
-from numba import jit
+from numba import njit
 try:
     from infer import InferenceHelper
 except:
