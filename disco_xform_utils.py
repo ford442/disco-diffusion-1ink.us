@@ -50,7 +50,7 @@ midas_transform=T.Compose(
 MAX_ADABINS_AREA = 500000
 MIN_ADABINS_AREA = 448*448
 
-#@torch.no_grad()
+@torch.inference_mode()
 def transform_image_3d(img_filepath,imgsize):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
