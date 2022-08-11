@@ -84,9 +84,8 @@ def transform_image_3d(img_filepath,imgsize):
     img_midas_input = midas_transform({"image": img_midas})["image"]
     midas_optimize = True
     sample = torch.from_numpy(img_midas_input).float().to(device).unsqueeze(0)
-    if midas_optimize==True and device == torch.device("cuda"):
-        sample = sample.to(memory_format=torch.channels_last)  
-        sample = sample.half()
+    sample = sample.to(memory_format=torch.channels_last)  
+    sample = sample.half()
     prediction_torch = midas_model.forward(sample)
     prediction_torch = torch.nn.functional.interpolate(
             prediction_torch.unsqueeze(1),
