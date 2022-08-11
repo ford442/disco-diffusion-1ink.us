@@ -55,7 +55,7 @@ midas_transform=T.Compose(
 #@jit(forceobj=True,fastmath=True,cache=True)
 def transform_image_3d(img_filepath,imgsize):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
-    w, h = img_pil.size
+    w, h = (imgsize,imgsize)
     img_pil=cv2.imread(img_filepath)
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
     use_adabins = midas_weight < 1.0
