@@ -51,8 +51,8 @@ midas_transform=T.Compose(
             normalization,
             PrepareForNet(),
 ])
-@torch.no_grad()
-#@jit(forceobj=True,fastmath=True,cache=True)
+@torch.inference_mode()
+@jit(forceobj=True,cache=True)
 def transform_image_3d(img_filepath,imgsize):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = (imgsize,imgsize)
