@@ -85,8 +85,8 @@ def transform_image_3d(img_filepath,imgsize):
     # MiDaS depth estimation implementation
     #print("Running MiDaS depth estimation implementation...")
     sample = torch.from_numpy(img_midas_input).float().to(device).unsqueeze(0)
-    sample = sample.to(memory_format=torch.channels_last)  
-    sample = sample.half()
+    #sample = sample.to(memory_format=torch.channels_last)  
+    #sample = sample.half()
     prediction_torch = midas_model.forward(sample)
     prediction_torch = torch.nn.functional.interpolate(
             prediction_torch.unsqueeze(1),
