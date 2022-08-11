@@ -95,7 +95,7 @@ def transform_image_3d(img_filepath,imgsize):
             mode="bicubic",
             align_corners=False,
         ).squeeze()
-    prediction_np = prediction_torch.detach().numpy()
+    prediction_np = prediction_torch.clone().cpu().numpy()
     #print("Finished depth estimation.")
     #torch.cuda.empty_cache()
     # MiDaS makes the near values greater, and the far values lesser. Let's reverse that and try to align with AdaBins a bit better.
