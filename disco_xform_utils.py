@@ -11,6 +11,7 @@ import sys, math
 import cv2
 import torchvision.transforms as T
 device=torch.device('cpu')
+deviceG=torch.device('cuda:0')
 from numba import jit
 try:
     from infer import InferenceHelper
